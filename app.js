@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 const routes = require('./routes/index');
-const { rootRoute } = require('./constants/routes');
+const { rootRoute } = require('./constants');
 const db = require('./config/db');
 const { ingestDataHandler } = require('./utils/dataHandler');
 
