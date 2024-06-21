@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
-const app = require('../app');
-const { dbUri } = require('../constants/db');
-const Contract = require('../models/contract');
+const { dbUri } = require('../constants');
 
 mongoose.connect(dbUri);
 const db = mongoose.connection;

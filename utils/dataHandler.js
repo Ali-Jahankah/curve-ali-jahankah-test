@@ -3,27 +3,37 @@ const ExcelJs = require('exceljs');
 
 const Contract = require('../models/contract');
 const Track = require('../models/track');
+const { contractFiletName } = require('../constants');
+
+const createContractHandler = async (contractName) => {
+  let contract = await Contract.findOne({ name: contractName });
+  if (!contract) {
+    contract = new Contract({ name: contractName });
+    await contract.save();
+    console.log('\n---Contract created---\n');
+  }
+  return contract;
+};
+
+const extractedRows = async () => {
+  const rows = [];
+  const workbook = new ExcelJs.Workbook();
+  await workbook.xlsx.readFile(
+    path.join(__dirname, '..', 'data', 'tracks.xlsx')
+  );
+  const workSheet = workbook.getWorksheet(1);
+  workSheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+    if (rowNumber > 2) {
+      rows.push({ row, rowNumber });
+    }
+  });
+  return rows;
+};
 exports.ingestDataHandler = async () => {
   try {
-    let contract = await Contract.findOne({ name: 'Contract 1' });
-    if (!contract) {
-      contract = new Contract({ name: 'Contract 1' });
-      await contract.save();
-      console.log('\n---Contract created---\n');
-    }
-    const workbook = new ExcelJs.Workbook();
-    await workbook.xlsx.readFile(
-      path.join(__dirname, '..', 'data', 'tracks.xlsx')
-    );
-    const workSheet = workbook.getWorksheet(1);
-
     const errors = [];
-    const rows = [];
-    workSheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
-      if (rowNumber > 2) {
-        rows.push({ row, rowNumber });
-      }
-    });
+    await createContractHandler(contractFiletName);
+    const rows = await extractedRows();
     for (const { row, rowNumber } of rows) {
       const [id, title, version, artist, isrc, pLine, aliases, contractName] =
         row.values.slice(1);
@@ -54,7 +64,7 @@ exports.ingestDataHandler = async () => {
         if (existingTrack) {
           errors.push({
             line: rowNumber,
-            error: `Duplicate track found. Detail s===> [title: "${title}" | Version: "${version}" | Artist: "${artist}")]`
+            error: `Duplicate track found ===> title: "${title}" | Version: "${version}" | Artist: "${artist}"`
           });
           continue;
         }
