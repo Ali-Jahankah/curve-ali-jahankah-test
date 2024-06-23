@@ -7,7 +7,7 @@
     "dev": "cross-env NODE_ENV=Developement nodemon app"
   },
   "keywords": [],
-  "author": "",
+  "author": "Ali Jahankah",
   "license": "ISC",
   "description": "",
   "dependencies": {
