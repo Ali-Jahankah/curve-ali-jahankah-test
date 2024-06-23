@@ -102,7 +102,6 @@ ingestDataHandler = async (dataRows) => {
         aliases: aliasesArray
       };
       if (trackContract) {
-        console.log(trackContract);
         trackData.contract = trackContract._id;
       }
       try {
