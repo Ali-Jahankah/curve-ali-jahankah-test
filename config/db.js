@@ -1,8 +1,13 @@
 const mongoose = require('mongoose');
-const { dbUri } = require('../constants');
 
-mongoose.connect(dbUri);
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
+const connectDb = async (uri) => {
+  try {
+    await mongoose.connect(uri);
+    console.log('Connected to DB');
+  } catch (error) {
+    console.error('Error in connecting to MongoDB:', error);
+    throw error;
+  }
+};
 
-module.exports = db;
+module.exports = { connectDb };
