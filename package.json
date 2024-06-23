@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "test": "mocha",
+    "test": "cross-env NODE_ENV=test mocha",
     "dev": "cross-env NODE_ENV=Developement nodemon app"
   },
   "keywords": [],
