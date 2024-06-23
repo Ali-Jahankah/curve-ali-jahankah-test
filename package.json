@@ -4,7 +4,8 @@
   "main": "app.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test mocha",
-    "dev": "cross-env NODE_ENV=Developement nodemon app"
+    "dev": "cross-env NODE_ENV=Developement nodemon app",
+    "start": "cross-env NODE_ENV=production node app"
   },
   "keywords": [],
   "author": "Ali Jahankah",
