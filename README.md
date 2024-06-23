@@ -10,6 +10,7 @@ Ensure you have the following installed on your machine:
 
 - Node.js (v18 or higher, Node 20 recommended)
 - npm (v10)
+- MongoDB (running in the background) - You can use MongoDB Compass to see the cllections and data.
 
 ## Getting Started
 
@@ -32,7 +33,7 @@ Ensure you are using Node 18 or higher and npm 10.
 
 ### 4. Running the Project
 
-To start the server in development mode:
+You will see that the project will run on port 4001. Make sure your port 4001 is not in use. To start the server in development mode:
 
 ```bash
 npm run dev
