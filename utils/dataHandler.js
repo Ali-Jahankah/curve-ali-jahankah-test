@@ -27,54 +27,72 @@ const extractedRows = async () => {
       rows.push({ row, rowNumber });
     }
   });
-  return rows;
+  await ingestDataHandler(rows);
 };
-exports.ingestDataHandler = async () => {
+const checkContractExsit = async (contractName, errors, rowNumber) => {
+  let trackContract = null;
+  try {
+    if (contractName) {
+      trackContract = await Contract.findOne({ name: contractName });
+      if (!trackContract) {
+        errors.push({
+          line: rowNumber,
+          error: `Contract "${contractName}" not found`
+        });
+      }
+    }
+  } catch (error) {
+    errors.push({
+      line: rowNumber,
+      error: `Error in finding contract: ${error.message}`
+    });
+  }
+  return trackContract;
+};
+const checkTrackExist = async (title, version, artist, errors, rowNumber) => {
+  try {
+    const existingTrack = await Track.findOne({ title, version, artist });
+    if (existingTrack) {
+      errors.push({
+        line: rowNumber,
+        error: `Duplicate track found ===> title: "${title}" | Version: "${version}" | Artist: "${artist}"`
+      });
+      return true;
+    }
+    return false;
+  } catch (error) {
+    errors.push({
+      line: rowNumber,
+      error: `Error checking existing track: ${error.message}`
+    });
+  }
+};
+ingestDataHandler = async (dataRows) => {
+  const rows = dataRows;
   try {
     const errors = [];
     await createContractHandler(contractFiletName);
-    const rows = await extractedRows();
     for (const { row, rowNumber } of rows) {
       const [id, title, version, artist, isrc, pLine, aliases, contractName] =
         row.values.slice(1);
       const aliasesArray = aliases
         ? aliases.split(';').map((alias) => alias.trim())
         : [];
-      let trackContract = null;
-      try {
-        if (contractName) {
-          trackContract = await Contract.findOne({ name: contractName });
-          if (!trackContract) {
-            errors.push({
-              line: rowNumber,
-              error: `Contract "${contractName}" not found`
-            });
-            continue;
-          }
-        }
-      } catch (error) {
-        errors.push({
-          line: rowNumber,
-          error: `Error in finding contract: ${error.message}`
-        });
-        continue;
-      }
-      try {
-        const existingTrack = await Track.findOne({ title, version, artist });
-        if (existingTrack) {
-          errors.push({
-            line: rowNumber,
-            error: `Duplicate track found ===> title: "${title}" | Version: "${version}" | Artist: "${artist}"`
-          });
-          continue;
-        }
-      } catch (error) {
-        errors.push({
-          line: rowNumber,
-          error: `Error checking existing track: ${error.message}`
-        });
-        continue;
-      }
+
+      const trackContract = await checkContractExsit(
+        contractName,
+        errors,
+        rowNumber
+      );
+
+      const isTrackExist = await checkTrackExist(
+        title,
+        version,
+        artist,
+        errors,
+        rowNumber
+      );
+
       let trackData = {
         title,
         version,
@@ -84,12 +102,21 @@ exports.ingestDataHandler = async () => {
         aliases: aliasesArray
       };
       if (trackContract) {
+        console.log(trackContract);
         trackData.contract = trackContract._id;
       }
       try {
-        const track = new Track(trackData);
-        await track.save();
-        console.log(`Track "${title}" saved successfully.`);
+        if (
+          (trackContract &&
+            !isTrackExist &&
+            contractName &&
+            contractName === trackContract.name) ||
+          (!contractName && !isTrackExist)
+        ) {
+          const track = new Track(trackData);
+          await track.save();
+          console.log(`Track "${title}" saved successfully.`);
+        }
       } catch (err) {
         errors.push({ line: rowNumber, error: err.message });
         console.error(`Error in saving track "${title}": ${err.message}`);
@@ -104,4 +131,11 @@ exports.ingestDataHandler = async () => {
   } catch (error) {
     console.error('Error during data ingestion:', error);
   }
+};
+module.exports = {
+  extractedRows,
+  ingestDataHandler,
+  createContractHandler,
+  checkContractExsit,
+  checkTrackExist
 };
