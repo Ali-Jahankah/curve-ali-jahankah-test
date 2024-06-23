@@ -33,7 +33,7 @@ Ensure you are using Node 18 or higher and npm 10.
 
 ### 4. Running the Project
 
-You will see that the project will run on port 4001. Make sure your port 4001 is not in use. To start the server in development mode:
+You will see that the project will run on port 4001. Make sure your port 4001 is not in use. Also make sure that you are in branch 'master' and to start the server in development mode, run:
 
 ```bash
 npm run dev
