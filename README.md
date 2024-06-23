@@ -54,9 +54,8 @@ For this project:
 
 After running the project, it extracts the data from the xlsx file as rows. Data starts from row 3 as the first and second rows are headers. If there is any error during data ingestion, it shows the line numbers starting from 3 along with error details.
 
-Happy path:
-
-1. If a track in the data file:
+1. Happy path:
+   If a track in the data file:
 
 - Has a contract name and that contract name exists in the contract collection, the track will be saved in the 'track' collection with the contract id related to its contract in the 'contract' collection.
 - Does not have any contract value, it will be saved again but without a contract id.
